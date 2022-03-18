@@ -27,6 +27,8 @@ app.set('view engine', 'ejs');
 
 app.use(express.static(assetsPath));
 
+
+
 // fetch navigation menu for header and footer on every page
 app.use(async (req, res, next) => {
   if (!butter) {
@@ -55,6 +57,16 @@ app.use(async (req, res, next) => {
   } catch (error) {
     error.response && res.render('404', { layout: false, type: '404' });
   }
+});
+
+app.use((req, res, next) => {
+    const urlPath = req.path;
+    if(urlPath.at(-1) !== '/'){
+      const newPath = `${urlPath}/`
+      res.redirect(301, newPath)
+    } else {
+      next()
+    }
 });
 
 app.get('/', async (req, res) => {
@@ -115,7 +127,7 @@ app.get('/blog/search', async (req, res) => {
   }
 });
 
-app.get('/blog/:slug', async (req, res) => {
+app.get('/blog/:slug/', async (req, res) => {
   if (!butter) {
     res.render('no-api-hero', {
       type: 'blog-post',
@@ -210,8 +222,8 @@ app.get('/blog/tag/:slug', async (req, res) => {
   }
 });
 
-app.get('/landing-page/:slug', (req, res) => {
-  renderLandingPage(req, res, butter, 'own-landing-page');
+app.get('/:pageType/:slug', (req, res) => {
+  renderLandingPage(req, res, butter);
 });
 
 app.get('*', (_, res) => {
